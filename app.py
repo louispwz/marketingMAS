@@ -24,8 +24,8 @@ import reg_age_couleur
 
 
 st.set_page_config(
-    page_title="Your App Title",
-    page_icon="📊",
+    page_title="Analyse du profil des clients Aramisauto",
+    page_icon="🚗",
     layout="wide",
     menu_items={
         'Get Help': None,
