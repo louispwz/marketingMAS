@@ -88,7 +88,7 @@ def bienvenue():
         st.image("logo_aramisauto.jpg", width=300)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.write("AAAAAAAAAAAAAAAAAAAAAAAAAAH")
+
     # Contexte et objectifs
     st.markdown(
         """
