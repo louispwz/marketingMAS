@@ -10,3 +10,4 @@ statsmodels
 spicy
 seaborn
 plotly
+geopandas
