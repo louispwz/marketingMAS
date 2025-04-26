@@ -7,12 +7,10 @@ import geopandas as gpd
 import streamlit as st
 from streamlit_extras.let_it_rain import rain
 from streamlit_extras.customize_running import center_running
-from streamlit_pandas_profiling import st_profile_report
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, to_hex
 import plotly.express as px
 from plotly.subplots import make_subplots
-import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans
@@ -22,7 +20,6 @@ from sklearn.metrics import classification_report, confusion_matrix
 from scipy.stats import chi2_contingency
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import ydata
 import reg_age_couleur
 
 
