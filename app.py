@@ -23,15 +23,6 @@ import statsmodels.formula.api as smf
 import reg_age_couleur
 
 
-hide_creator_badge = """
-    <style>
-    footer a:first-child {visibility: hidden;}
-    </style>
-    """
-
-st.markdown(hide_creator_badge, unsafe_allow_html=True)
-
-
 st.set_page_config(
     page_title="Analyse du profil des clients Aramisauto",
     page_icon="🚗",
