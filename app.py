@@ -24,10 +24,14 @@ import reg_age_couleur
 
 
 st.set_page_config(
-    page_title="Analyse du profil des clients Aramisauto",
-    page_icon="🚗",
+    page_title="Your App Title",
+    page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded"
+    menu_items={
+        'Get Help': None,
+        'Report a Bug': None,
+        'About': "Dashboard créé par Juliette BRAULT, Lena CAUSEUR et Louis PRUSIEWICZ
+    }
 )
 
 switch_voiture = st.sidebar.toggle("Activer le mode voiture")
