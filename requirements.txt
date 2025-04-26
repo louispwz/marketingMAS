@@ -2,3 +2,4 @@ streamlit
 pandas
 bokeh
 streamlit-extras
+ydata
