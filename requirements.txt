@@ -3,3 +3,6 @@ pandas
 bokeh
 streamlit-extras
 ydata
+sklearn.decomposition
+sklearn.preprocessing
+matplotlib.pyplot
