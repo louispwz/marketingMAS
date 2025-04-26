@@ -8,12 +8,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Configuration des graphiques
 try:
     plt.style.use('seaborn')
 except:
-    pass  # Utiliser le style par défaut si seaborn n'est pas disponible
+    pass  # Utiliser le style par défaut si seaborn nn 'est pas disponible
 sns.set_palette("Set2")
 plt.rcParams['figure.figsize'] = (14, 10)
 plt.rcParams['font.size'] = 12
@@ -55,17 +58,27 @@ def standardize_colors(df):
     
     # Créer un dictionnaire de mapping avec des expressions régulières
     color_mapping = {
-        'NOIR': r'noir|black|anthracite|carbone|graphite|Saphirschwarz',
-        'BLANC': r'blanc|white|nacré|perle|ivory|Bianco|Alpinweiss|Ivoire',
-        'GRIS': r'gris|grey|gray|metal|argent|silver|Acier Moderne|Grau|mondsteingrau|Grigio',
-        'BLEU': r'bleu|blue|azur|marine|turquoise|cyan|Blu|Mediterranblau',
-        'ROUGE': r'rouge|red|bordeaux|carmin|rubis|burgundy',
-        'VERT': r'vert|green|emeraude|olive|kaki',
-        'JAUNE': r'jaune|yellow|or|gold|citron|Sable (M0EU)|Sable',
-        'MARRON': r'marron|brown|chocolat|beige|camel|taupe|bronze|Brun Terracotta (CNZ)|Brun Terracotta (CNZ)',
-        'ORANGE': r'orange|amber|cuivre|copper',
-        'VIOLET': r'violet|purple|mauve|lilas|lavande',
-        'ROSE': r'rose|pink|fuchsia|magenta'
+        'NOIR': r'noir|black|anthracite|carbone|graphite|Saphirschwarz|schwarz|nero|negro|onyx|jet|obsidian|carbon|ebony|raven|charcoal|nera|carbonscwarz|night|midnightblack|blackmetallic|umbra|mokka|Brun Adventure',
+        
+        'BLANC': r'blanc|white|nacré|perle|ivory|Bianco|Alpinweiss|Ivoire|weiss|weiß|bianche|blanche|polar|crystal|snowflake|glacier|diamantweiß|perlweiß|calcite|pure|mineralweiß|alaska|perlmutt|cristal\s*pearl|crystalline|ice|frost|snow|diamond|platinweiß|alpine|oyster|shell|parchment|cream|eggshell|magnolia',
+        
+        'GRIS': r'gris|grey|gray|metal|argent|silver|Acier Moderne|Grau|mondsteingrau|Grigio|silber|plata|platine|steel|ash|palladium|selenite|quartz|rhodium|aluminium|titanium|eissilber|tundragrau|glaciersilver|granit|florett|iridium|selenit|manhattan|indium|tenorit|platin|stonegrey|artense\s*grijs| Artense Grijs|Grafietgrijs|Berggrijs',
+        
+        'BLEU': r'bleu|blue|azur|marine|turquoise|cyan|Blu|Mediterranblau|azzurre|ozean|atlantis|pacific|adriatic|fjord|windsor|moonlight|portimao|tanzanite|reef|topaz|sky|cobalt|navarra|estoril|mystic|utopia|petrol|sapphire|amalfi|midnight|aqua|capri|imperialblau|dive\s*in\s*jeju|phytonicblau|phytonic| Imperialblau Brillanteffekt| Dive in Jeju|Phytonicblau|Blau|Nautile|AZUL',
+        
+        'ROUGE': r'rouge|red|bordeaux|carmin|rubis|burgundy|rosso|rot|rojo|cardinal|magma|crimson|tango|lava|vulcano|tornado|cranberry|corsa|carmijn|misano|imola|melbourne|indianapolis|monza|sakhir|firenze|scala|passion|fiammante',
+        
+        'VERT': r'vert|green|emeraude|olive|kaki|grün|verde|oliva|british|racing|forest|jade|sage|mint|aventurine|goodwood|malachite|hunter|alpine|rallye|mint|serpentino|pino|wilderness|jungle',
+        
+        'JAUNE': r'jaune|yellow|or|gold|citron|Sable \(M0EU\)|Sable|gelb|amarillo|giallo|soleil|vegas|aspen|bahama|sunburst|arizona|dakar|austin|phoenix|speed|atacama|modena|sunrise|sandstone',
+        
+        'MARRON': r'marron|brown|chocolat|beige|camel|taupe|bronze|Brun Terracotta \(CNZ\)|Brun Terracotta|braun|marrón|marrone|mocha|tobacco|cognac|malt|havana|teaktree|mocca|mahogany|walnut|saddle|terra|kastanien|havanna|sepang|cappuccino|sahara|atacama|vison|brun\s*vison|oak|teak|suede|espresso|sienna|hickory|cashew|cinnamon|pecan|buff|tan|sepia|umber|brun\s*moka|moka|Brun Moka',
+        
+        'ORANGE': r'orange|amber|cuivre|copper|arancione|naranja|valencia|coral|mandarin|phoenix|sunrise|sunset|atomic|burnt|fusion|glowing|volcanic|flame|fiery|tiger|bronze|canyon',
+        
+        'VIOLET': r'violet|purple|mauve|lilas|lavande|violett|púrpura|viola|ultraviolet|amethyst|plum|aubergine|twilight|velvet|mystic|passion|eggplant|cassis|améthyste|amethyste|\(9AH\)|mulberry|heather|orchid|grape|byzantium|thistle',
+        
+        'ROSE': r'rose|pink|fuchsia|magenta|rosa|shocking|flamingo|bubblegum|raspberry|cerise|candy|orchid'
     }
     
     # Appliquer le mapping aux couleurs existantes
@@ -90,68 +103,129 @@ def standardize_colors(df):
     
     return df
 
+import plotly.express as px
+import plotly.graph_objects as go
+
 def analyze_colors_by_age(df):
-    """Analyser les couleurs préférées par tranche d'âge"""
+    """Analyser les couleurs préférées par tranche d'âge avec des graphiques interactifs"""
     # Filtrer pour n'avoir que les lignes avec commande
     df_commandes = df[df['FLAG_COMMANDE'] == 1].copy()
-    
+
+    # Vérifier que les colonnes nécessaires existent
+    if 'COULEUR_STANDARD' not in df_commandes.columns or 'tranche_age' not in df_commandes.columns:
+        print("Colonnes requises manquantes.")
+        return None, None, None
+
+    # 1. Tableau croisé des couleurs par tranche d'âge
+    crosstab = pd.crosstab(df_commandes['tranche_age'], df_commandes['COULEUR_STANDARD'])
+
+    # Normaliser par ligne pour avoir des pourcentages
+    crosstab_pct = crosstab.div(crosstab.sum(axis=1), axis=0) * 100
+
+    # 2. Heatmap interactive avec Plotly
+    fig_heatmap = px.imshow(
+        crosstab_pct,
+        labels=dict(x="Couleur du véhicule", y="Tranche d'âge", color="Pourcentage"),
+        x=crosstab_pct.columns,
+        y=crosstab_pct.index,
+        text_auto=".1f"  # Afficher les pourcentages avec une décimale
+    )
+    fig_heatmap.update_layout(
+        title="Pourcentage de chaque couleur de véhicule par tranche d'âge",
+        xaxis_title="Couleur du véhicule",
+        yaxis_title="Tranche d'âge",
+        coloraxis_colorbar=dict(title="Pourcentage (%)"),
+        margin=dict(l=50, r=50, t=50, b=50)
+    )
+
+    fig_heatmap.update_layout(
+    title={
+        'x': 0.5,       
+        'xanchor': 'center',
+        'font': {'size': 24}  
+    })
+
+    fig_heatmap.update_coloraxes(showscale=False)
+
+    """Analyser les couleurs préférées par tranche d'âge avec des graphiques interactifs dans une seule fenêtre"""
+    # Filtrer pour n'avoir que les lignes avec commande
+    df_commandes = df[df['FLAG_COMMANDE'] == 1].copy()
+
     # Vérifier que les colonnes nécessaires existent
     if 'COULEUR_STANDARD' not in df_commandes.columns or 'tranche_age' not in df_commandes.columns:
         print("Colonnes requises manquantes.")
         return None
-    
-    # Enlever les valeurs manquantes
-    df_commandes = df_commandes.dropna(subset=['COULEUR_STANDARD', 'tranche_age'])
-    
-    # 1. Tableau croisé des couleurs par tranche d'âge
-    crosstab = pd.crosstab(df_commandes['tranche_age'], df_commandes['COULEUR_STANDARD'])
-    
-    # Normaliser par ligne pour avoir des pourcentages
-    crosstab_pct = crosstab.div(crosstab.sum(axis=1), axis=0) * 100
-    
-    # 2. Visualiser avec une heatmap
-    plt.figure(figsize=(16, 10))
-    
-    # Utiliser toutes les couleurs standardisées, elles sont déjà regroupées
-    crosstab_pct_filtered = crosstab_pct
-    
-    sns.heatmap(crosstab_pct_filtered, annot=True, cmap='YlGnBu', fmt='.1f')
-    plt.title('Pourcentage de chaque couleur de véhicule par tranche d\'âge', fontsize=16)
-    plt.xlabel('Couleur du véhicule', fontsize=14)
-    plt.ylabel('Tranche d\'âge', fontsize=14)
-    plt.tight_layout()
-    plt.savefig('heatmap_couleur_age.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    # 3. Barplot pour chaque tranche d'âge
-    plt.figure(figsize=(18, 12))
-    
-    # Créer un subplot pour chaque tranche d'âge
+
+    # Obtenir les tranches d'âge uniques
     age_groups = sorted(df_commandes['tranche_age'].unique())
-    n_groups = len(age_groups)
-    rows = (n_groups + 1) // 2  # Arrondir au supérieur
-    
+
+    # Définir un dictionnaire de correspondance entre les noms de couleurs et les codes hexadécimaux
+    color_mapping = {
+        'NOIR': '#000000',     # Noir
+        'BLANC': '#FFFFFF',    # Blanc
+        'GRIS': '#A9A9A9',     # Gris
+        'BLEU': '#0000FF',     # Bleu
+        'ROUGE': '#FF0000',    # Rouge
+        'VERT': '#008000',     # Vert
+        'JAUNE': '#FFD700',    # Jaune doré
+        'MARRON': '#8B4513',   # Marron
+        'ORANGE': '#FFA500',   # Orange
+        'VIOLET': '#800080',   # Violet
+        'ROSE': '#FFC0CB',     # Rose
+        'AUTRE': '#808080'     # Gris pour "Autre"
+    }
+
+    # Créer une figure avec des subplots
+    fig = make_subplots(
+        rows=2, cols=3,  # 2 lignes, 3 colonnes pour 6 tranches d'âge
+        subplot_titles=[f"Tranche d'âge {age}" for age in age_groups]
+    )
+
+    # Ajouter un graphique pour chaque tranche d'âge
     for i, age_group in enumerate(age_groups):
-        plt.subplot(rows, 2, i+1)
-        
-        # Sélectionner les données pour cette tranche d'âge
+        # Obtenir les données pour la tranche d'âge
         age_data = df_commandes[df_commandes['tranche_age'] == age_group]
-        
-        # Compter les occurrences de chaque couleur standardisée
         color_counts = age_data['COULEUR_STANDARD'].value_counts()
-        
-        # Créer le graphique
-        sns.barplot(x=color_counts.index, y=color_counts.values)
-        plt.title(f'Répartition des couleurs pour la tranche d\'âge {age_group}')
-        plt.xlabel('Couleur')
-        plt.ylabel('Nombre de véhicules')
-        plt.xticks(rotation=45, ha='right')
-    
-    plt.tight_layout()
-    plt.savefig('barplot_couleur_par_age.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    return crosstab_pct
+
+        # Appliquer les couleurs aux barres
+        bar_colors = [color_mapping.get(color, '#808080') for color in color_counts.index]
+
+        # Ajouter un barplot pour cette tranche d'âge
+        fig.add_trace(
+            go.Bar(
+                x=color_counts.index,
+                y=color_counts.values,
+                name=f"Tranche d'âge {age_group}",
+                marker=dict(
+                    color=bar_colors,  
+                    line=dict(color='black', width=1.5)  #Contour noir pour pouvoir voir les barres blanches
+            )
+            ),
+            row=(i // 3) + 1,  # Ligne du subplot
+            col=(i % 3) + 1    # Colonne du subplot
+        )
+
+    # Mettre à jour la mise en page
+    fig.update_layout(
+        title="Répartition des couleurs par tranche d'âge",
+        height=800,  # Hauteur totale de la figure
+        showlegend=False,  # Désactiver la légende globale
+        margin=dict(l=50, r=50, t=50, b=50)
+    )
+
+    fig.update_layout(
+    title={
+        'x': 0.5,       
+        'xanchor': 'center',
+        'font': {'size': 24}  
+    })
+
+    # Ajouter des titres aux axes
+    fig.update_xaxes(title_text="Couleur", row=2, col=1)
+    fig.update_yaxes(title_text="Nombre de véhicules", row=1, col=1)
+
+
+    return fig_heatmap, fig, crosstab_pct
 
 def perform_regression_analysis(df):
     """Réaliser une analyse de régression logistique pour prédire les préférences de couleur selon l'âge"""
@@ -208,98 +282,131 @@ def perform_regression_analysis(df):
     results_df = pd.DataFrame(results).T
     results_df = results_df.sort_values('coefficient', ascending=False)
     
-    # Visualiser les coefficients de régression
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(results_df.index, results_df['coefficient'])
+    # Graphique interactif des coefficients de régression
+    fig_coefficients = go.Figure()
+    fig_coefficients.add_trace(
+        go.Bar(
+            x=results_df.index,
+            y=results_df['coefficient'],
+            marker_color=['darkblue' if sig else 'lightblue' for sig in results_df['significant']],
+            text=[f"p-value: {p:.3e}" for p in results_df['p_value']],
+            textposition='outside'
+        )
+    )
+    fig_coefficients.update_layout(
+        title="Coefficient de l'âge sur la probabilité de choisir chaque couleur",
+        xaxis_title="Couleur",
+        yaxis_title="Coefficient (log-odds)",
+        template="plotly_white",
+        height=500
+    )
+
+    fig_coefficients.update_layout(
+    title={
+        'x': 0.5,       
+        'xanchor': 'center',
+        'font': {'size': 24}  
+    })
     
-    # Colorer selon la significativité
-    for i, bar in enumerate(bars):
-        if results_df.iloc[i]['significant']:
-            bar.set_color('darkblue')
-        else:
-            bar.set_color('lightblue')
-            
-    plt.axhline(y=0, color='r', linestyle='-', alpha=0.3)
-    plt.title('Coefficient de l\'âge sur la probabilité de choisir chaque couleur')
-    plt.xlabel('Couleur')
-    plt.ylabel('Coefficient (log-odds)')
-    plt.xticks(rotation=45, ha='right')
+    # Graphique interactif des odds ratios
+    fig_odds_ratios = go.Figure()
+    fig_odds_ratios.add_trace(
+        go.Bar(
+            x=results_df.index,
+            y=results_df['odds_ratio'],
+            marker_color=['darkblue' if sig else 'lightblue' for sig in results_df['significant']],
+            text=[f"p-value: {p:.3e}" for p in results_df['p_value']],
+            textposition='outside'
+        )
+    )
+    fig_odds_ratios.update_layout(
+        title="Odds Ratio de l'âge sur la probabilité de choisir chaque couleur",
+        xaxis_title="Couleur",
+        yaxis_title="Odds Ratio",
+        template="plotly_white",
+        height=500
+    )
+
+    fig_odds_ratios.update_layout(
+    title={
+        'x': 0.5,       
+        'xanchor': 'center',
+        'font': {'size': 24}  
+    })
     
-    # Ajouter une note sur la significativité
-    plt.figtext(0.5, 0.01, 'Les barres foncées indiquent des coefficients statistiquement significatifs (p<0.05)',
-                ha='center', fontsize=10)
-    
-    plt.tight_layout()
-    plt.savefig('regression_age_couleur.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    # Visualiser les odds ratios
-    plt.figure(figsize=(12, 6))
-    bars = plt.bar(results_df.index, results_df['odds_ratio'])
-    
-    # Colorer selon la significativité
-    for i, bar in enumerate(bars):
-        if results_df.iloc[i]['significant']:
-            bar.set_color('darkgreen')
-        else:
-            bar.set_color('lightgreen')
-            
-    plt.axhline(y=1, color='r', linestyle='-', alpha=0.3)
-    plt.title('Odds Ratio de l\'âge sur la probabilité de choisir chaque couleur')
-    plt.xlabel('Couleur')
-    plt.ylabel('Odds Ratio')
-    plt.xticks(rotation=45, ha='right')
-    
-    # Ajouter une note explicative
-    plt.figtext(0.5, 0.01, 'OR > 1: La probabilité augmente avec l\'âge, OR < 1: La probabilité diminue avec l\'âge',
-                ha='center', fontsize=10)
-    
-    plt.tight_layout()
-    plt.savefig('odds_ratio_age_couleur.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    return results_df
+    return results_df, fig_coefficients, fig_odds_ratios
+
+
 
 def plot_color_preferences_by_age_continuous(df):
-    """Créer un graphique montrant l'évolution des préférences de couleurs avec l'âge (continu)"""
+    """Créer un graphique interactif montrant l'évolution des préférences de couleurs avec l'âge (continu)"""
     # Filtrer pour n'avoir que les lignes avec commande
     df_commandes = df[df['FLAG_COMMANDE'] == 1].copy()
-    
+
     # Enlever les valeurs manquantes
     df_commandes = df_commandes.dropna(subset=['COULEUR_STANDARD', 'age_client'])
-    
-    # Utiliser toutes les couleurs standardisées
-    df_filtered = df_commandes.copy()
-    
+
+    # Définir un dictionnaire de correspondance entre les noms de couleurs et les codes couleurs
+    color_mapping = {
+        'NOIR': '#000000',     # Noir
+        'BLANC': '#E0E0E0',    # Blanc
+        'GRIS': '#A9A9A9',     # Gris
+        'BLEU': '#0000FF',     # Bleu
+        'ROUGE': '#FF0000',    # Rouge
+        'VERT': '#008000',     # Vert
+        'JAUNE': '#FFD700',    # Jaune doré
+        'MARRON': '#8B4513',   # Marron
+        'ORANGE': '#FFA500',   # Orange
+        'VIOLET': '#800080',   # Violet
+        'ROSE': '#FFC0CB',     # Rose
+        'AUTRE': '#808080'     # Gris pour "Autre"
+    }
+
     # Créer des bins d'âge plus fins pour une visualisation continue
     age_bins = np.arange(20, 80, 5)  # tranches d'âge de 5 ans
-    df_filtered['age_bin'] = pd.cut(df_filtered['age_client'], bins=age_bins)
-    
+    df_commandes['age_bin'] = pd.cut(df_commandes['age_client'], bins=age_bins)
+
     # Calculer la distribution des couleurs pour chaque bin d'âge
-    color_distribution = pd.crosstab(df_filtered['age_bin'], df_filtered['COULEUR_STANDARD'], normalize='index') * 100
-    
+    color_distribution = pd.crosstab(df_commandes['age_bin'], df_commandes['COULEUR_STANDARD'], normalize='index') * 100
+
     # Convertir les bins en valeurs numériques pour le graphique (point médian de chaque bin)
     age_mid_points = [(b.left + b.right) / 2 for b in color_distribution.index]
-    
-    # Créer le graphique
-    plt.figure(figsize=(14, 8))
-    
-    # Tracer une ligne pour chaque couleur standardisée
-    for color in color_distribution.columns:
-        plt.plot(age_mid_points, color_distribution[color], marker='o', linewidth=2, label=color)
-    
-    plt.title('Évolution des préférences de couleur selon l\'âge', fontsize=16)
-    plt.xlabel('Âge', fontsize=14)
-    plt.ylabel('Pourcentage (%)', fontsize=14)
-    plt.legend(title='Couleur')
-    plt.grid(True, linestyle='--', alpha=0.7)
-    
-    plt.tight_layout()
-    plt.savefig('evolution_couleur_age_continu.png', dpi=300, bbox_inches='tight')
-    plt.show()
-    
-    return color_distribution
 
+    # Créer le graphique interactif avec Plotly
+    fig = go.Figure()
+
+    # Ajouter une ligne pour chaque couleur standardisée
+    for color in color_distribution.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=age_mid_points,
+                y=color_distribution[color],
+                mode='lines+markers',
+                name=color,
+                line=dict(color=color_mapping.get(color, '#808080'), width=2,dash='dash' if color == 'BLANC' else None),  # Ligne en pointillés pour le blanc
+                marker=dict(size=8, symbol='circle', line=dict(color='black', width=1))  # Contour noir pour les marqueurs
+            )
+        )
+
+    # Mettre à jour la mise en page
+    fig.update_layout(
+        title="Évolution des préférences de couleur selon l'âge",
+        xaxis_title="Âge",
+        yaxis_title="Pourcentage (%)",
+        legend_title="Couleur",
+        template="plotly_white",
+        height=600,
+        margin=dict(l=50, r=50, t=50, b=50)
+    )
+
+    fig.update_layout(
+    title={
+        'x': 0.5,       
+        'xanchor': 'center',
+        'font': {'size': 24}  
+    })
+
+    return fig
 def main():
     # Charger les données
     file_path = 'table_full.csv'
