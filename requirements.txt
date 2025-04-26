@@ -5,9 +5,7 @@ bokeh
 matplotlib
 scikit-learn
 plotly
-ydata
 statsmodels
 spicy
-seaborn
 plotly
 geopandas
