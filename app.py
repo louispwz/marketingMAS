@@ -30,8 +30,7 @@ st.set_page_config(
     menu_items={
         'Get Help': None,
         'Report a Bug': None,
-        'About': "Dashboard créé par Juliette BRAULT, Lena CAUSEUR et Louis PRUSIEWICZ",
-        'GitHub' : None
+        'About': "Dashboard créé par Juliette BRAULT, Lena CAUSEUR et Louis PRUSIEWICZ"
     }
 )
 
