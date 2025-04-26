@@ -10,3 +10,4 @@ statsmodels
 spicy
 plotly
 geopandas
+seaborn
