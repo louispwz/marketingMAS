@@ -71,6 +71,8 @@ def load_data():
     return table_full, table_vehicule
 
 table_full, table_vehicule = load_data()
+
+
 def bienvenue():
     st.subheader("Bienvenue sur l'application d'analyse du profil des clients Aramisauto")
 
@@ -107,7 +109,7 @@ def bienvenue():
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    st.info("Cette application a été développée dans le cadre du projet Datamining pour l'année 2024/2025.")
+    st.info("Cette application a été développée dans le cadre du projet Marketing pour l'année 2024/2025.")
     
     
     
