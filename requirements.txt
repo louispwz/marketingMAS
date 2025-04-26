@@ -1,9 +1,6 @@
 streamlit
 pandas
+numpy
 bokeh
-streamlit-extras
-ydata
+matplotlib
 scikit-learn
-sklearn.decomposition
-sklearn.preprocessing
-matplotlib.pyplot
