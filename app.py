@@ -7,7 +7,6 @@ import random
 import ydata
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from streamlit_pandas_profiling import st_profile_report
 import matplotlib.pyplot as plt
 
 
